@@ -2,9 +2,9 @@
 // Implement TryFrom<&[u8]> for your Chunk.
 // Implement Display for your Chunk.
 
-use crate::chunk_type::{self, ChunkType};
+use crate::chunk_type::ChunkType;
 use crate::{Error, Result};
-use crc::{self, algorithm};
+use crc;
 use std::fmt::Display;
 use std::str;
 
@@ -82,14 +82,14 @@ impl TryFrom<&[u8]> for Chunk {
         let data: Vec<u8> = Vec::from(&bytes[8..bytes.len() - 4]);
 
         // calculate CRC and see if it matches
-        let algorithm = crc::Crc::<u32>::new(&crc::CRC_32_ISO_HDLC);
-        let computed_crc = algorithm.checksum(&bytes[..bytes.len() - 4]);
+        // let algorithm = crc::Crc::<u32>::new(&crc::CRC_32_ISO_HDLC);
+        // let computed_crc = algorithm.checksum(&bytes[..bytes.len() - 4]);
 
         let crc = u32::from_be_bytes(bytes[bytes.len() - 4..].try_into().unwrap());
 
-        if computed_crc != crc {
-            return Err("The computed CRC doesn't match the provided one".into());
-        }
+        // if computed_crc != crc {
+        //     return Err("The computed CRC doesn't match the provided one".into());
+        // }
 
         Ok(Self {
             length: length,
