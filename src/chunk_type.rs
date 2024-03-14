@@ -60,10 +60,16 @@ impl FromStr for ChunkType {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self> {
-        let bytes = s.as_bytes().try_into()?;
-        let chunk_type = Self(bytes);
+        if s.len() != 4 {
+            return Err("Invalid length: must be 4 wide".into());
+        }
 
-        Ok(chunk_type)
+        let bytes: [u8; 4] = s.as_bytes().try_into()?;
+        if !bytes.is_ascii() {
+            return Err("Invalid byte: Byte must be in range [65-90] or [97-122]".into());
+        }
+
+        Ok(Self(bytes))
     }
 }
 
