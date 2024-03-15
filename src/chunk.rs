@@ -75,21 +75,30 @@ impl TryFrom<&[u8]> for Chunk {
     type Error = Error;
 
     fn try_from(bytes: &[u8]) -> std::result::Result<Self, Self::Error> {
+        // todo: refactor using iterators
+
         // extract base informations
         let length = u32::from_be_bytes(bytes[0..4].try_into().unwrap());
         let chunk_type: [u8; 4] = bytes[4..8].try_into().unwrap();
         let chunk_type = ChunkType::try_from(chunk_type)?;
         let data: Vec<u8> = Vec::from(&bytes[8..bytes.len() - 4]);
-
-        // calculate CRC and see if it matches
-        // let algorithm = crc::Crc::<u32>::new(&crc::CRC_32_ISO_HDLC);
-        // let computed_crc = algorithm.checksum(&bytes[..bytes.len() - 4]);
-
         let crc = u32::from_be_bytes(bytes[bytes.len() - 4..].try_into().unwrap());
 
-        // if computed_crc != crc {
-        //     return Err("The computed CRC doesn't match the provided one".into());
-        // }
+        // calculate CRC and see if it matches
+        let algorithm = crc::Crc::<u32>::new(&crc::CRC_32_ISO_HDLC);
+
+        let all_data: Vec<_> = chunk_type
+            .bytes()
+            .iter()
+            .chain(data.iter())
+            .copied()
+            .collect();
+
+        let computed_crc = algorithm.checksum(&all_data);
+
+        if computed_crc != crc {
+            return Err("The computed CRC doesn't match the provided one".into());
+        }
 
         Ok(Self {
             length: length,
