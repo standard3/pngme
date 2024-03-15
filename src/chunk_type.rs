@@ -47,12 +47,12 @@ impl ChunkType {
 impl TryFrom<[u8; 4]> for ChunkType {
     type Error = Error;
 
-    fn try_from(value: [u8; 4]) -> Result<Self> {
-        if !value.is_ascii() {
+    fn try_from(bytes: [u8; 4]) -> Result<Self> {
+        if !bytes.iter().all(|b| b.is_ascii_alphabetic()) {
             return Err("Invalid byte: Byte must be in range [65-90] or [97-122]".into());
         }
 
-        Ok(Self(value))
+        Ok(Self(bytes))
     }
 }
 
@@ -65,7 +65,7 @@ impl FromStr for ChunkType {
         }
 
         let bytes: [u8; 4] = s.as_bytes().try_into()?;
-        if !bytes.is_ascii() {
+        if !bytes.iter().all(|b| b.is_ascii_alphabetic()) {
             return Err("Invalid byte: Byte must be in range [65-90] or [97-122]".into());
         }
 
@@ -160,6 +160,7 @@ mod tests {
         assert!(!chunk.is_valid());
 
         let chunk = ChunkType::from_str("Ru1t");
+        println!("{chunk:?}");
         assert!(chunk.is_err());
     }
 
