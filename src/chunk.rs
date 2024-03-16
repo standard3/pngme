@@ -1,7 +1,3 @@
-// Write a Chunk struct with your implementation of PNG chunks.
-// Implement TryFrom<&[u8]> for your Chunk.
-// Implement Display for your Chunk.
-
 use crate::chunk_type::ChunkType;
 use crate::{Error, Result};
 use crc;
